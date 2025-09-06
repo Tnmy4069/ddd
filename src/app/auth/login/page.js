@@ -21,7 +21,11 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push('/dashboard');
+      console.log('User is authenticated, redirecting to dashboard...');
+      // Small delay to ensure everything is ready
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 200);
     }
   }, [isAuthenticated, router]);
 
@@ -49,8 +53,15 @@ export default function LoginPage() {
     
     if (!validateForm()) return;
     
+    console.log('Login form submitted');
     const result = await login(email, password);
+    console.log('Login result:', result);
+    
     if (result.success) {
+      console.log('Login successful, waiting before redirect...');
+      // Wait a bit longer to ensure auth state is properly set
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log('Redirecting to dashboard...');
       router.push('/dashboard');
     }
   };

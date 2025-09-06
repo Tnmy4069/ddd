@@ -22,10 +22,11 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { formatDateTime } from '@/lib/utils';
+import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 
 export default function DashboardPage() {
-  const { user, logout, isLoading: authLoading, isAuthenticated } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
   const { theme, setTheme } = useTheme();
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,78 +38,60 @@ export default function DashboardPage() {
 
   // Redirect to login if not authenticated
   useEffect(() => {
-    if (!authLoading && (!user || !isAuthenticated)) {
+    if (!authLoading && !user) {
       const timer = setTimeout(() => {
-        if (!user || !isAuthenticated) {
-          console.log('Dashboard: Redirecting to login - not authenticated');
+        if (!user) {
           window.location.href = '/auth/login';
         }
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [user, isAuthenticated, authLoading]);
+  }, [user, authLoading]);
 
   const loadChatHistory = useCallback(async () => {
-    // Only load if user exists and is authenticated
-    if (!user || !isAuthenticated) {
-      console.log('Skipping chat history load - not authenticated', { user: !!user, isAuthenticated });
-      return;
-    }
+    if (!user) return;
     
     try {
       setIsLoading(true);
-      console.log('Loading chat history for authenticated user:', user.username);
+      const response = await api.get('/api/chat/history');
       
-      const response = await fetch('/api/chat/history', {
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data && data.success) {
-          const chats = data.chats || [];
-          setChatHistory(chats);
-          
-          // Calculate stats
-          setStats({
-            totalChats: chats.length,
-            totalMessages: chats.reduce((total, chat) => total + (chat.messageCount || 0), 0),
-            recentActivity: chats.filter(chat => {
-              const lastUpdate = new Date(chat.lastMessage || chat.createdAt);
-              const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-              return lastUpdate > dayAgo;
-            }).length
-          });
-        } else {
-          setChatHistory([]);
-        }
+      if (response.data && response.data.success) {
+        const chats = response.data.chats || [];
+        setChatHistory(chats);
+        
+        // Calculate stats
+        setStats({
+          totalChats: chats.length,
+          totalMessages: chats.reduce((total, chat) => total + (chat.messageCount || 0), 0),
+          recentActivity: chats.filter(chat => {
+            const lastUpdate = new Date(chat.lastMessage || chat.createdAt);
+            const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+            return lastUpdate > dayAgo;
+          }).length
+        });
       } else {
-        throw new Error('Failed to load chat history');
+        setChatHistory([]);
       }
     } catch (error) {
       console.error('Error loading chat history:', error);
-      toast.error('Failed to load chat history');
+      if (error.response?.status === 401) {
+        toast.error('Session expired. Please log in again.');
+      } else {
+        toast.error('Failed to load chat history');
+      }
       setChatHistory([]);
     } finally {
       setIsLoading(false);
     }
-  }, [user, isAuthenticated]);
+  }, [user]);
 
   const deleteChat = async (chatId) => {
     if (!confirm('Are you sure you want to delete this chat?')) return;
     
     try {
-      const response = await fetch(`/api/chat/${chatId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      
-      if (response.ok) {
-        toast.success('Chat deleted successfully');
-        loadChatHistory(); // Reload the list
-      } else {
-        throw new Error('Failed to delete chat');
-      }
+      await api.delete(`/api/chat/${chatId}`);
+      toast.success('Chat deleted successfully');
+      loadChatHistory();
     } catch (error) {
       console.error('Error deleting chat:', error);
       toast.error('Failed to delete chat');
@@ -122,12 +105,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    // Only load when user is authenticated and auth loading is complete
-    if (user && isAuthenticated && !authLoading) {
-      console.log('Dashboard: Loading chat history for authenticated user');
+    if (user && !authLoading) {
       loadChatHistory();
     }
-  }, [user, isAuthenticated, authLoading, loadChatHistory]);
+  }, [user, authLoading, loadChatHistory]);
 
   // Show loading while checking auth
   if (authLoading) {
@@ -195,17 +176,15 @@ export default function DashboardPage() {
               <div className="flex items-center space-x-3">
                 {user.avatar ? (
                   user.avatar.startsWith('http') ? (
-                    <Image
+                    <img
                       src={user.avatar}
-                      alt={user.username}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
+                      alt={user.name}
+                      className="h-8 w-8 rounded-full"
                     />
                   ) : (
                     <Image
                       src={user.avatar}
-                      alt={user.username}
+                      alt={user.name}
                       width={32}
                       height={32}
                       className="rounded-full"
@@ -214,12 +193,12 @@ export default function DashboardPage() {
                 ) : (
                   <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
                     <span className="text-white text-sm font-medium">
-                      {user.username?.charAt(0)?.toUpperCase() || 'U'}
+                      {user.name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                 )}
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {user.username}
+                  {user.name}
                 </span>
                 <Button
                   variant="ghost"
@@ -239,7 +218,7 @@ export default function DashboardPage() {
         {/* Welcome Section */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user.username}!
+            Welcome back, {user.name}!
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             Manage your AI conversations and explore the community.

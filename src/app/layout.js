@@ -14,7 +14,11 @@ export const metadata = {
   description: "Advanced AI chatbot and community platform for data analysis, insights, and collaboration.",
   keywords: ["AI", "chatbot", "analytics", "community", "data analysis"],
   authors: [{ name: "RoboAnalyzer Team" }],
-  viewport: "width=device-width, initial-scale=1",
+};
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }) {

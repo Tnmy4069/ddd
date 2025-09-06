@@ -70,7 +70,14 @@ export function getFromLocalStorage(key, defaultValue = null) {
   
   try {
     const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
+    const result = item ? JSON.parse(item) : defaultValue;
+    console.log(`getFromLocalStorage(${key}):`, { 
+      hasItem: !!item, 
+      itemLength: item?.length,
+      resultType: typeof result,
+      result: key === 'token' ? (result ? result.substring(0, 20) + '...' : 'null') : result
+    });
+    return result;
   } catch (error) {
     console.error('Error reading from localStorage:', error);
     return defaultValue;
@@ -81,7 +88,13 @@ export function setToLocalStorage(key, value) {
   if (typeof window === 'undefined') return;
   
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    const jsonValue = JSON.stringify(value);
+    localStorage.setItem(key, jsonValue);
+    console.log(`setToLocalStorage(${key}):`, { 
+      valueType: typeof value,
+      jsonLength: jsonValue.length,
+      preview: key === 'token' ? (value ? value.substring(0, 20) + '...' : 'null') : value
+    });
   } catch (error) {
     console.error('Error writing to localStorage:', error);
   }

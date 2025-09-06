@@ -1,31 +1,33 @@
-import { verifyToken, getTokenFromHeaders } from '@/lib/auth';
+import { getUserFromCookie } from '@/lib/auth';
 import User from '@/models/User';
 import connectDB from '@/lib/mongodb';
 
 export async function authenticateUser(request) {
   try {
-    // Get token from Authorization header
-    const token = getTokenFromHeaders(request.headers);
+    // Get user ID from cookie
+    const userId = await getUserFromCookie();
     
-    if (!token) {
-      return { success: false, error: 'No token provided' };
-    }
-
-    // Verify token
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return { success: false, error: 'Invalid token' };
+    console.log('Auth middleware - userId from cookie:', userId);
+    
+    if (!userId) {
+      console.log('Auth middleware - No user ID in cookie');
+      return { success: false, error: 'No authentication cookie' };
     }
 
     // Connect to database
     await connectDB();
+    console.log('Auth middleware - DB connected');
 
     // Find user
-    const user = await User.findById(decoded.userId).select('-password');
+    const user = await User.findById(userId).select('-password');
+    console.log('Auth middleware - user found:', !!user, user?.username);
+    
     if (!user) {
+      console.log('Auth middleware - User not found for ID:', userId);
       return { success: false, error: 'User not found' };
     }
 
+    console.log('Auth middleware - Authentication successful for user:', user.username);
     return { success: true, user };
   } catch (error) {
     console.error('Authentication error:', error);
@@ -38,9 +40,14 @@ export function withAuth(handler) {
     const authResult = await authenticateUser(request);
     
     if (!authResult.success) {
-      return Response.json(
-        { error: authResult.error },
-        { status: 401 }
+      return new Response(
+        JSON.stringify({ error: authResult.error }),
+        { 
+          status: 401,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
     }
 

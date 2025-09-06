@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { hashPassword, generateToken } from '@/lib/auth';
+import { hashPassword, setAuthCookie } from '@/lib/auth';
 import { validateEmail, validatePassword, validateUsername, generateAvatarUrl } from '@/lib/utils';
 
 export async function POST(request) {
@@ -73,9 +73,6 @@ export async function POST(request) {
 
     await user.save();
 
-    // Generate JWT token
-    const token = generateToken(user._id);
-
     // Return user data (without password)
     const userData = {
       id: user._id,
@@ -86,11 +83,16 @@ export async function POST(request) {
       createdAt: user.createdAt
     };
 
-    return NextResponse.json({
+    // Set auth cookie
+    await setAuthCookie(user._id.toString());
+
+    // Create response
+    const response = NextResponse.json({
       message: 'User registered successfully',
-      token,
       user: userData
     }, { status: 201 });
+
+    return response;
 
   } catch (error) {
     console.error('Registration error:', error);

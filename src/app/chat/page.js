@@ -25,7 +25,6 @@ import {
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { formatTime } from '@/lib/utils';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 
 export default function ChatPage() {
@@ -65,8 +64,13 @@ export default function ChatPage() {
 
   const fetchChatHistory = async () => {
     try {
-      const response = await axios.get('/api/chat/history');
-      setChatHistory(response.data.histories);
+      const response = await fetch('/api/chat/history', {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setChatHistory(data.histories || []);
+      }
     } catch (error) {
       console.error('Error fetching chat history:', error);
     }
@@ -97,16 +101,29 @@ export default function ChatPage() {
           content: msg.content
         }));
 
-      const response = await axios.post('/api/chat', {
-        messages: apiMessages,
-        chatId: chatId,
-        model: 'gpt-3.5-turbo'
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          messages: apiMessages,
+          chatId: chatId,
+          model: 'gpt-3.5-turbo'
+        })
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const data = await response.json();
 
       const assistantMessage = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.data.response,
+        content: data.response,
         timestamp: new Date().toISOString()
       };
 
@@ -114,8 +131,8 @@ export default function ChatPage() {
       
       // Update chat info if this is a new chat
       if (!chatId) {
-        setChatId(response.data.chatId);
-        setChatTitle(response.data.title);
+        setChatId(data.chatId);
+        setChatTitle(data.title);
         fetchChatHistory(); // Refresh history sidebar
       }
 
@@ -151,7 +168,7 @@ export default function ChatPage() {
 
   const handleLoadChat = async (historyItem) => {
     try {
-      const response = await axios.get(`/api/chat/${historyItem.id}`);
+      const response = await api.get(`/api/chat/${historyItem.id}`);
       const chatData = response.data;
       
       setMessages(chatData.messages.map(msg => ({

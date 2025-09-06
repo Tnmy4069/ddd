@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,7 @@ import {
   User
 } from 'lucide-react';
 import { formatTime } from '@/lib/utils';
+import api from '@/lib/axios';
 import toast from 'react-hot-toast';
 
 export default function CommunityPage() {
@@ -28,28 +29,6 @@ export default function CommunityPage() {
   // Simplified - just use general room
   const currentRoom = 'general';
 
-  const loadMessages = useCallback(async () => {
-    if (!user) return;
-    
-    try {
-      setIsLoading(true);
-      const response = await fetch(`/api/messages?room=${currentRoom}&limit=50`, {
-        credentials: 'include'
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data.messages || []);
-      } else {
-        throw new Error('Failed to load messages');
-      }
-    } catch (error) {
-      console.error('Error fetching messages:', error);
-      toast.error('Failed to load messages');
-    } finally {
-      setIsLoading(false);
-    }
-  }, [user, currentRoom]);
-
   // Load messages on component mount
   useEffect(() => {
     if (user) {
@@ -58,7 +37,7 @@ export default function CommunityPage() {
       const interval = setInterval(loadMessages, 5000);
       return () => clearInterval(interval);
     }
-  }, [user, loadMessages]);
+  }, [user]);
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
@@ -69,6 +48,23 @@ export default function CommunityPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const loadMessages = async () => {
+    if (!user) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/api/messages?room=${currentRoom}&limit=50`);
+      setMessages(response.data.messages || []);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      if (error.response?.status !== 401) {
+        toast.error('Failed to load messages');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     
@@ -77,17 +73,10 @@ export default function CommunityPage() {
     try {
       setIsSending(true);
       
-      await fetch('/api/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          content: inputMessage.trim(),
-          room: currentRoom,
-          type: 'text'
-        })
+      await api.post('/api/messages', {
+        content: inputMessage.trim(),
+        room: currentRoom,
+        type: 'text'
       });
       
       setInputMessage('');

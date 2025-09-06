@@ -2,7 +2,6 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 
 // Import the main chat component logic
@@ -18,8 +17,15 @@ export default function SpecificChatPage() {
     const loadChatData = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`/api/chat/${params.chatId}`);
-        setChatData(response.data);
+        const response = await fetch(`/api/chat/${params.chatId}`, {
+          credentials: 'include'
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setChatData(data);
+        } else {
+          throw new Error('Failed to load chat');
+        }
       } catch (error) {
         console.error('Error loading chat:', error);
         toast.error('Failed to load chat');

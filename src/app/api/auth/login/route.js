@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import User from '@/models/User';
-import { comparePassword, generateToken } from '@/lib/auth';
+import { comparePassword, setAuthCookie } from '@/lib/auth';
 import { validateEmail } from '@/lib/utils';
 
 export async function POST(request) {
@@ -50,8 +50,8 @@ export async function POST(request) {
       isOnline: true
     });
 
-    // Generate JWT token
-    const token = generateToken(user._id);
+    // Set auth cookie
+    await setAuthCookie(user._id);
 
     // Return user data (without password)
     const userData = {
@@ -67,7 +67,6 @@ export async function POST(request) {
 
     return NextResponse.json({
       message: 'Login successful',
-      token,
       user: userData
     });
 

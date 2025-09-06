@@ -1,25 +1,5 @@
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-
-const JWT_SECRET = process.env.JWT_SECRET;
-
-if (!JWT_SECRET) {
-  throw new Error('Please define the JWT_SECRET environment variable inside .env.local');
-}
-
-// Generate JWT token
-export function generateToken(userId) {
-  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
-}
-
-// Verify JWT token
-export function verifyToken(token) {
-  try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (error) {
-    return null;
-  }
-}
+import { cookies } from 'next/headers';
 
 // Hash password
 export async function hashPassword(password) {
@@ -32,11 +12,26 @@ export async function comparePassword(password, hashedPassword) {
   return await bcrypt.compare(password, hashedPassword);
 }
 
-// Extract token from request headers
-export function getTokenFromHeaders(headers) {
-  const authHeader = headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    return authHeader.substring(7);
-  }
-  return null;
+// Set auth cookie
+export async function setAuthCookie(userId) {
+  const cookieStore = await cookies();
+  cookieStore.set('auth-user', userId.toString(), {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7 // 7 days
+  });
+}
+
+// Get user ID from cookie
+export async function getUserFromCookie() {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('auth-user');
+  return authCookie?.value || null;
+}
+
+// Clear auth cookie
+export async function clearAuthCookie() {
+  const cookieStore = await cookies();
+  cookieStore.delete('auth-user');
 }
