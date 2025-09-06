@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { withAuth } from '@/middleware/auth';
-import { generateAIResponse, generateChatTitle } from '@/lib/openai';
+import { generateAIResponse, generateChatTitle } from '@/lib/gemini';
 import ChatHistory from '@/models/ChatHistory';
 import connectDB from '@/lib/mongodb';
 
@@ -64,7 +64,7 @@ async function handler(request) {
           ...messages.map(msg => ({ ...msg, timestamp: new Date() })),
           assistantMessage
         ],
-        model: model || 'gpt-3.5-turbo'
+        model: model || 'gemini-1.5-flash'
       });
       
       await chatHistory.save();

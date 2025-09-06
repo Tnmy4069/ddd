@@ -110,7 +110,7 @@ export default function ChatPage() {
         body: JSON.stringify({
           messages: apiMessages,
           chatId: chatId,
-          model: 'gpt-3.5-turbo'
+          model: 'gemini-1.5-flash'
         })
       });
 
