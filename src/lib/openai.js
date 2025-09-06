@@ -1,13 +1,14 @@
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
+// Initialize OpenAI only if API key is available
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}) : null;
 
 export async function generateAIResponse(messages, model = 'gpt-3.5-turbo') {
   try {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error('OpenAI API key not configured');
+    if (!process.env.OPENAI_API_KEY || !openai) {
+      throw new Error('OpenAI API key not configured. Please add your OPENAI_API_KEY to the environment variables.');
     }
 
     const systemPrompt = {
