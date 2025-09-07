@@ -21,7 +21,9 @@ import {
   Sparkles,
   Copy,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { formatTime } from '@/lib/utils';
@@ -29,7 +31,7 @@ import toast from 'react-hot-toast';
 
 export default function ChatPage() {
   const { user } = useAuth();
-  const { theme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -263,7 +265,7 @@ export default function ChatPage() {
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
             <Image
-              src={user?.avatar || '/default-avatar.png'}
+              src="/avatar.svg"
               alt={user?.username || 'User'}
               width={32}
               height={32}
@@ -299,9 +301,25 @@ export default function ChatPage() {
                 </p>
               </div>
             </div>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-2">
+              {/* Theme Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-yellow-500" />
+                ) : (
+                  <Moon className="h-4 w-4 text-blue-600" />
+                )}
+              </Button>
+              <Button variant="ghost" size="icon">
+                <Settings className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
 

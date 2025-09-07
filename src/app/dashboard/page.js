@@ -18,11 +18,15 @@ import {
   Moon,
   Trash2,
   Calendar,
-  Clock
+  Clock,
+  Shield,
+  HelpCircle,
+  ChevronRight
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { formatDateTime } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import ImageSlider from '@/components/ui/image-slider';
 
 export default function DashboardPage() {
   const { user, logout, isLoading: authLoading, isAuthenticated } = useAuth();
@@ -68,17 +72,6 @@ export default function DashboardPage() {
         if (data && data.success) {
           const chats = data.chats || [];
           setChatHistory(chats);
-          
-          // Calculate stats
-          setStats({
-            totalChats: chats.length,
-            totalMessages: chats.reduce((total, chat) => total + (chat.messageCount || 0), 0),
-            recentActivity: chats.filter(chat => {
-              const lastUpdate = new Date(chat.lastMessage || chat.createdAt);
-              const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-              return lastUpdate > dayAgo;
-            }).length
-          });
         } else {
           setChatHistory([]);
         }
@@ -94,6 +87,33 @@ export default function DashboardPage() {
     }
   }, [user, isAuthenticated]);
 
+  const loadStats = useCallback(async () => {
+    // Only load if user exists and is authenticated
+    if (!user || !isAuthenticated) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/stats', {
+        credentials: 'include'
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.success) {
+          setStats(data.stats || {
+            totalChats: 0,
+            totalMessages: 0,
+            recentActivity: 0
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      // Keep default stats on error
+    }
+  }, [user, isAuthenticated]);
+
   const deleteChat = async (chatId) => {
     if (!confirm('Are you sure you want to delete this chat?')) return;
     
@@ -106,8 +126,9 @@ export default function DashboardPage() {
       if (response.ok) {
         toast.success('Chat deleted successfully');
         loadChatHistory(); // Reload the list
+        loadStats(); // Reload the stats
       } else {
-        throw new Error('Failed to delete chat');
+        throw Error('Failed to delete chat');
       }
     } catch (error) {
       console.error('Error deleting chat:', error);
@@ -124,10 +145,11 @@ export default function DashboardPage() {
   useEffect(() => {
     // Only load when user is authenticated and auth loading is complete
     if (user && isAuthenticated && !authLoading) {
-      console.log('Dashboard: Loading chat history for authenticated user');
+      console.log('Dashboard: Loading data for authenticated user');
       loadChatHistory();
+      loadStats();
     }
-  }, [user, isAuthenticated, authLoading, loadChatHistory]);
+  }, [user, isAuthenticated, authLoading, loadChatHistory, loadStats]);
 
   // Show loading while checking auth
   if (authLoading) {
@@ -167,6 +189,17 @@ export default function DashboardPage() {
     }
   ];
 
+  // Add admin link if user is admin
+  if (user && user.role === 'admin') {
+    quickActions.push({
+      title: 'Admin Dashboard',
+      description: 'System administration',
+      icon: Shield,
+      href: '/admin',
+      color: 'bg-red-500 hover:bg-red-600'
+    });
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
@@ -186,38 +219,25 @@ export default function DashboardPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className="p-2"
+                className="p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-yellow-500" />
+                ) : (
+                  <Moon className="h-4 w-4 text-blue-600" />
+                )}
               </Button>
               
               {/* User Avatar & Menu */}
               <div className="flex items-center space-x-3">
-                {user.avatar ? (
-                  user.avatar.startsWith('http') ? (
-                    <Image
-                      src={user.avatar}
-                      alt={user.username}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                  ) : (
-                    <Image
-                      src={user.avatar}
-                      alt={user.username}
-                      width={32}
-                      height={32}
-                      className="rounded-full"
-                    />
-                  )
-                ) : (
-                  <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
-                      {user.username?.charAt(0)?.toUpperCase() || 'U'}
-                    </span>
-                  </div>
-                )}
+                <Image
+                  src="/avatar.svg"
+                  alt={user.username}
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                />
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   {user.username}
                 </span>
@@ -311,6 +331,14 @@ export default function DashboardPage() {
               );
             })}
           </div>
+        </div>
+
+        {/* Image Slider */}
+        <div className="mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+            Featured Gallery
+          </h3>
+          <ImageSlider />
         </div>
 
         {/* Chat History */}
@@ -408,6 +436,139 @@ export default function DashboardPage() {
               )}
             </div>
           )}
+        </div>
+
+        {/* FAQ Section */}
+        <div className="mt-12">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              Frequently Asked Questions
+            </h3>
+            <Link href="/faq">
+              <Button variant="outline" size="sm">
+                <HelpCircle className="h-4 w-4 mr-2" />
+                View All FAQs
+              </Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* FAQ Item 1 */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <Bot className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      Is RoboAnalyzer a free software?
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      We would like to term this as &quot;Priceless Software&quot; as it has immense value for a zero cost.
+                    </p>
+                    <Link href="/faq">
+                      <Button variant="ghost" size="sm" className="p-0 h-auto text-blue-600 hover:text-blue-700">
+                        Read more <ChevronRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* FAQ Item 2 */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <MessageCircle className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      How does the AI chatbot work?
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Our AI chatbot is powered by Google&apos;s Gemini 1.5 Flash model, providing intelligent responses...
+                    </p>
+                    <Link href="/faq">
+                      <Button variant="ghost" size="sm" className="p-0 h-auto text-blue-600 hover:text-blue-700">
+                        Read more <ChevronRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* FAQ Item 3 */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <Settings className="h-6 w-6 text-purple-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      Why am I not able to launch RoboAnalyzer application?
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      Most likely, you have tried to launch RoboAnalyzer.exe from a zip folder...
+                    </p>
+                    <Link href="/faq">
+                      <Button variant="ghost" size="sm" className="p-0 h-auto text-blue-600 hover:text-blue-700">
+                        Read more <ChevronRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* FAQ Item 4 */}
+            <Card className="hover:shadow-md transition-shadow">
+              <CardContent className="p-6">
+                <div className="flex items-start space-x-4">
+                  <Users className="h-6 w-6 text-orange-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                      How does the community chat work?
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                      The community chat allows real-time messaging with other RoboAnalyzer users...
+                    </p>
+                    <Link href="/faq">
+                      <Button variant="ghost" size="sm" className="p-0 h-auto text-blue-600 hover:text-blue-700">
+                        Read more <ChevronRight className="h-3 w-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* FAQ CTA */}
+          <div className="mt-6 text-center">
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+              <CardContent className="p-6">
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                  Need more help?
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                  Browse all frequently asked questions or get instant help from our AI assistant.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href="/faq">
+                    <Button size="sm" className="w-full sm:w-auto">
+                      <HelpCircle className="h-4 w-4 mr-2" />
+                      Browse All FAQs
+                    </Button>
+                  </Link>
+                  <Link href="/chat">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto">
+                      <Bot className="h-4 w-4 mr-2" />
+                      Ask AI Assistant
+                    </Button>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

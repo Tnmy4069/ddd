@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,13 +13,16 @@ import {
   Home, 
   MessageCircle,
   RefreshCw,
-  User
+  User,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { formatTime } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
 export default function CommunityPage() {
   const { user } = useAuth();
+  const { theme, setTheme } = useTheme();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -150,6 +154,20 @@ export default function CommunityPage() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              {/* Theme Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className="p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="h-4 w-4 text-yellow-500" />
+                ) : (
+                  <Moon className="h-4 w-4 text-blue-600" />
+                )}
+              </Button>
               <Button variant="outline" size="sm" onClick={loadMessages} disabled={isLoading}>
                 <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>

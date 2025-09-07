@@ -61,7 +61,7 @@ export function truncateText(text, maxLength = 100) {
 
 export function generateAvatarUrl(username) {
   // Generate a deterministic avatar URL based on username
-  return `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(username)}`;
+  return `/avatar.svg`;
 }
 
 // Local storage utilities

@@ -25,7 +25,12 @@ async function getHandler(request) {
       lastMessage: chat.messages[chat.messages.length - 1]?.content?.substring(0, 100) || ''
     }));
 
-    return NextResponse.json({ histories: formattedHistories });
+    // Return both histories and success flag for compatibility
+    return NextResponse.json({ 
+      success: true,
+      histories: formattedHistories,
+      chats: formattedHistories // For backward compatibility
+    });
   } catch (error) {
     console.error('Get chat history error:', error);
     return NextResponse.json(
