@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/button';
@@ -143,7 +144,13 @@ export default function CommunityPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <Users className="h-8 w-8 text-green-600" />
+              <Image 
+                src="/roboanalyzer-menulogo.png" 
+                alt="RoboAnalyzer Logo" 
+                width={32} 
+                height={32}
+                className="w-8 h-8 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                   Community Chat

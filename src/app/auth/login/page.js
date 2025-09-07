@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -84,7 +85,13 @@ export default function LoginPage() {
           <CardHeader className="text-center pb-8">
             <motion.div {...fadeInUp} className="flex justify-center mb-4">
               <div className="bg-blue-600 p-3 rounded-2xl">
-                <Bot className="h-8 w-8 text-white" />
+                <Image 
+                  src="/roboanalyzer-menulogo.png" 
+                  alt="RoboAnalyzer Logo" 
+                  width={32} 
+                  height={32}
+                  className="w-8 h-8 object-contain filter brightness-0 invert"
+                />
               </div>
             </motion.div>
             <motion.div {...fadeInUp}>

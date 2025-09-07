@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -109,7 +110,13 @@ export default function Home() {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center space-x-2">
-            <Bot className="h-8 w-8 text-blue-600" />
+            <Image 
+              src="/roboanalyzer-menulogo.png" 
+              alt="RoboAnalyzer Logo" 
+              width={32} 
+              height={32}
+              className="w-8 h-8 object-contain"
+            />
             <span className="text-2xl font-bold text-gray-800 dark:text-white">RoboAnalyzer</span>
           </div>
           <div className="flex space-x-4">

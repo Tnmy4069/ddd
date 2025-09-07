@@ -14,6 +14,11 @@ export const metadata = {
   description: "Advanced AI chatbot and community platform for data analysis, insights, and collaboration.",
   keywords: ["AI", "chatbot", "analytics", "community", "data analysis"],
   authors: [{ name: "RoboAnalyzer Team" }],
+  icons: {
+    icon: "/roboanalyzer-menulogo.png",
+    shortcut: "/roboanalyzer-menulogo.png",
+    apple: "/roboanalyzer-menulogo.png",
+  },
 };
 
 export const viewport = {

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -235,7 +236,13 @@ export default function Home() {
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center space-x-2">
-            <Bot className="h-8 w-8 text-blue-600" />
+            <Image 
+              src="/roboanalyzer-menulogo.png" 
+              alt="RoboAnalyzer Logo" 
+              width={32} 
+              height={32}
+              className="w-8 h-8 object-contain"
+            />
             <span className="text-2xl font-bold text-gray-800 dark:text-white">RoboAnalyzer</span>
           </div>
           <div className="flex items-center space-x-4">
@@ -516,8 +523,20 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="container mx-auto px-4 py-8 border-t border-gray-200 dark:border-gray-700">
-        <div className="text-center text-gray-600 dark:text-gray-400">
-          <p>&copy; 2024 RoboAnalyzer. All rights reserved.</p>
+        <div className="flex flex-col items-center space-y-4">
+          <div className="flex items-center space-x-2">
+            <Image 
+              src="/roboanalyzer-menulogo.png" 
+              alt="RoboAnalyzer Logo" 
+              width={24} 
+              height={24}
+              className="w-6 h-6 object-contain"
+            />
+            <span className="text-lg font-semibold text-gray-800 dark:text-white">RoboAnalyzer</span>
+          </div>
+          <p className="text-center text-gray-600 dark:text-gray-400">
+            &copy; 2024 RoboAnalyzer. All rights reserved.
+          </p>
         </div>
       </footer>
     </div>

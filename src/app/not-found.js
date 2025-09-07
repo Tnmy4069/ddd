@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Home, ArrowLeft, Bot } from 'lucide-react';
 
@@ -21,7 +22,13 @@ export default function NotFound() {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <div className="bg-blue-600 p-4 rounded-2xl inline-block mb-6">
-            <Bot className="h-16 w-16 text-white" />
+            <Image 
+              src="/roboanalyzer-menulogo.png" 
+              alt="RoboAnalyzer Logo" 
+              width={64} 
+              height={64}
+              className="w-16 h-16 object-contain filter brightness-0 invert"
+            />
           </div>
           <h1 className="text-6xl font-bold text-gray-800 dark:text-white mb-4">404</h1>
           <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-200 mb-4">

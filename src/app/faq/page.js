@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
@@ -214,7 +215,13 @@ export default function FAQPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <HelpCircle className="h-8 w-8 text-blue-600" />
+              <Image 
+                src="/roboanalyzer-menulogo.png" 
+                alt="RoboAnalyzer Logo" 
+                width={32} 
+                height={32}
+                className="w-8 h-8 object-contain"
+              />
               <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Frequently Asked Questions
               </h1>
