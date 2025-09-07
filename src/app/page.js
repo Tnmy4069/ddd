@@ -8,13 +8,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Bot, MessageCircle, Users, Zap, Shield, Sparkles, Sun, Moon, ChevronDown, ChevronUp, HelpCircle } from 'lucide-react';
 import ImageSlider from '@/components/ui/image-slider';
 import { useTheme } from 'next-themes';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   const { isAuthenticated, user } = useAuth();
   const { theme, setTheme } = useTheme();
   const [openItems, setOpenItems] = useState(new Set());
+  const [mounted, setMounted] = useState(false);
+
+  // Ensure theme is properly mounted on client side
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleItem = (index) => {
     const newOpenItems = new Set(openItems);
@@ -25,7 +31,7 @@ export default function Home() {
     }
     setOpenItems(newOpenItems);
   };
-
+  
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -170,9 +176,9 @@ export default function Home() {
             size="sm"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm"
-            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            title={mounted ? (theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode') : 'Toggle theme'}
           >
-            {theme === 'dark' ? (
+            {mounted && theme === 'dark' ? (
               <Sun className="h-4 w-4 text-yellow-500" />
             ) : (
               <Moon className="h-4 w-4 text-blue-600" />
@@ -239,9 +245,9 @@ export default function Home() {
               size="sm"
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
               className="p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+              title={mounted ? (theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode') : 'Toggle theme'}
             >
-              {theme === 'dark' ? (
+              {mounted && theme === 'dark' ? (
                 <Sun className="h-4 w-4 text-yellow-500" />
               ) : (
                 <Moon className="h-4 w-4 text-blue-600" />
