@@ -221,7 +221,7 @@ export default function DashboardPage() {
             
             <div className="flex items-center space-x-4">
               {/* Theme Toggle */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -233,7 +233,7 @@ export default function DashboardPage() {
                 ) : (
                   <Moon className="h-4 w-4 text-blue-600" />
                 )}
-              </Button>
+              </Button> */}
               
               {/* User Avatar & Menu */}
               <div className="flex items-center space-x-3">

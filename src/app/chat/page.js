@@ -309,7 +309,7 @@ export default function ChatPage() {
             </div>
             <div className="flex items-center space-x-2">
               {/* Theme Toggle */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -321,7 +321,7 @@ export default function ChatPage() {
                 ) : (
                   <Moon className="h-4 w-4 text-blue-600" />
                 )}
-              </Button>
+              </Button> */}
               <Button variant="ghost" size="icon">
                 <Settings className="h-4 w-4" />
               </Button>

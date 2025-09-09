@@ -162,7 +162,7 @@ export default function CommunityPage() {
             </div>
             <div className="flex items-center space-x-2">
               {/* Theme Toggle */}
-              <Button
+              {/* <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -174,7 +174,7 @@ export default function CommunityPage() {
                 ) : (
                   <Moon className="h-4 w-4 text-blue-600" />
                 )}
-              </Button>
+              </Button> */}
               <Button variant="outline" size="sm" onClick={loadMessages} disabled={isLoading}>
                 <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
               </Button>
