@@ -21,7 +21,7 @@ Who is the target audience? (Undergraduate and postgraduate students, teachers, 
 
 What are the system requirements? (Windows OS, at least a 1.5 GHz processor, 512 MB RAM, and Microsoft .Net framework.)
 
-How can users download and install the software? (From the official website, by unzipping the downloaded file and running the .exe file.)
+How can users download and install the software? (From the official website http://www.roboanalyzer.com/, by unzipping the downloaded file and running the .exe file.)
 
 What is the VRM module, and how does it relate to RoboAnalyzer? (It is a part of RoboAnalyzer that allows visualization and simulation of industrial robots and can be integrated with other software like MATLAB and MS Excel as a COM server.)
 

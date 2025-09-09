@@ -292,8 +292,7 @@ export default function Home() {
             className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 leading-relaxed"
             variants={fadeInUp}
           >
-            Experience the future of data analysis with our advanced AI chatbot and vibrant community platform. 
-            Get insights, collaborate, and innovate like never before.
+         Experience the future of Robotics with our advanced AI chatbot and vibrant community platform. Get insights, collaborate, and innovate like never before.
           </motion.p>
 
           <motion.div 

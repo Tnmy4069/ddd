@@ -191,11 +191,11 @@ export default function ChatPage() {
   };
 
   const quickPrompts = [
-    "Explain quantum computing in simple terms",
-    "Help me analyze this data trend",
-    "Write a Python function for data visualization",
-    "What are the latest AI developments?",
-    "Help me optimize my workflow"
+    "What is RoboAnalyzer?",
+    "What are RoboAnalyzer primary goals?",
+    "Who is the target audience of RoboAnalyzer?",
+    "What are the system requirements?",
+    "How can users download and install the software?"
   ];
 
   return (
