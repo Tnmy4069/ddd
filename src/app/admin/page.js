@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { formatTime } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import AdminMessageManager from '@/components/AdminMessageManager';
 
 export default function AdminDashboard() {
   const { user } = useAuth();
@@ -483,6 +484,16 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
+        </motion.div>
+
+        {/* Message Management */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="mt-8"
+        >
+          <AdminMessageManager />
         </motion.div>
       </div>
     </div>
